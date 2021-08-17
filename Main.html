@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  
+    
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Project</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/style.css">
+        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+        <script src="js/vendor/jquery-1.12.0.min.js"></script>
+        <script src="bootstrap-3.3.7/js/bootstrap.min.js" </script>
+        <script src="bootstrap-3.3.7/js/bootstrap.js" </script>
+
+
+
+
+
+
+
+
+</head>
+<body>
+<div class="main">
+
+<div class="row">
+  <div class="col-sm-12">
+  <nav class="shadow navbar navbar-inverse navbar-fixed-top nbar">
+    <div class="navbar-header">
+      <a class="navbar-brand lspace" href="Main.html">HOME</a>
+       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-menubuilder"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+            </button>
+    </div>
+   <div class="collapse navbar-collapse navbar-menubuilder">
+    <ul class="nav navbar-nav">
+      <li class="space"><a href="Main.html"><i class="fa fa-code ispace"></i>Compiler</a></li>
+      <li class="space"><a href="archive.html"><i class="fa fa-archive ispace"></i>Problem Archive</a></li>
+      <li class="space"><a href="contest.php"><i class="fa fa-cogs ispace"></i>Contests</a></li>
+      <li class="space"><a href="#"><i class="fa fa-check-square ispace"></i>Debug</a></li>
+     
+      
+    </ul>
+    </div>
+</nav>
+</div>
+</div>
+
+
+<div class="row log">
+<div class="col-sm-10">
+<!--<center><div class="alert alert-success"><a href="https://github.com/shawon100/RUET-OJ">RUET OJ</a> is temporary unavailable for server problem. We will be back</div></center><br>-->
+<div class=""><h3 style="text-align:center;">Online Compiler</h3></div>
+</div>
+
+<div class="col-sm-1">
+
+</div>
+
+<div class="col-sm-1">
+  
+</div>
+
+</div>
+
+
+
+
+<div class="row cspace">
+<div class="col-sm-8">
+<div class="form-group">
+
+<label for="lang">Choose Language</label>
+
+<select id ="lang" class="form-control" name="language">
+<option >C</option>
+<option >C++</option>
+<option >C++11</option>
+<option selected>Java</option>
+<!--<option value="python2.7">Python2</option>
+<option value="python3.2">Python2</option>-->
+  
+
+</select><br><br>
+
+<label for="ta">Write Your Code</label>
+<textarea id ="source" class="form-control" rows="10" cols="50"></textarea><br><br>
+<label for="in">Enter Your Input</label>
+<textarea id="input" class="form-control" rows="10" cols="50"></textarea><br><br>
+<button id="run" onclick="run()">▶️ Run</button>
+<label for="in">Output</label>
+<textarea readonly id="output" class="form-control" rows="10" cols="50"></textarea><br><br>
+
+<script type="text/javascript">
+        API_KEY = "34c8103e63msh909728bfda25be5p1bb0fbjsnd587398101bf"; // PLEASE DON'T SHARE 
+
+        var language_to_id = {
+            "C": 50,
+            "C++": 54,
+            "Java": 62,
+            "Python": 71,
+        };
+
+        function encode(str) {
+            return btoa(unescape(encodeURIComponent(str || "")));
+        }
+
+        function decode(bytes) {
+            var escaped = escape(atob(bytes || ""));
+            try {
+                return decodeURIComponent(escaped);
+            } catch {
+                return unescape(escaped);
+            }
+        }
+
+        function errorHandler(jqXHR, textStatus, errorThrown) {
+            $("#output").val(`${JSON.stringify(jqXHR, null, 4)}`);
+            $("#run").prop("disabled", false);
+        }
+
+        function check(token) {
+            $("#output").val($("#output").val() + "\nChecking submission status...");
+            $.ajax({
+                url: `https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=true`,
+                type: "GET",
+                headers: {
+                    "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+	                "x-rapidapi-key": API_KEY
+                },
+                success: function (data, textStatus, jqXHR) {
+                    if ([1, 2].includes(data["status"]["id"])) {
+                        $("#output").val($("#output").val() + "\nStatus: " + data["status"]["description"]);
+                        setTimeout(function() { check(token) }, 1000);
+                    }
+                    else {
+                        var output = [decode(data["compile_output"]), decode(data["stdout"])].join("\n").trim();
+                        $("#output").val(output);
+                        $("#run").prop("disabled", false);
+                    }
+                },
+                error: errorHandler
+            });
+        }
+
+        function run() {
+            $("#run").prop("disabled", true);
+            $("#output").val("Creating submission...");
+            $.ajax({
+                url: "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true",
+                type: "POST",
+                contentType: "application/json",
+                headers: {
+                    "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+	                "x-rapidapi-key": API_KEY
+                },
+                data: JSON.stringify({
+                    "language_id": language_to_id[$("#lang").val()],
+                    "source_code": encode($("#source").val()),
+                    "stdin": encode($("#input").val()),
+                    "redirect_stderr_to_stdout": true
+                }),
+                success: function(data, textStatus, jqXHR) {
+                    $("#output").val($("#output").val() + "\nSubmission created.");
+                    setTimeout(function() { check(data["token"]) }, 2000);
+                },
+                error: errorHandler
+            });
+        }
+
+        $("body").keydown(function (e) {
+            if (e.ctrlKey && e.keyCode == 13) {
+                run();
+            }
+        });
+
+        $("textarea").keydown(function (e) {
+            if (e.keyCode == 9) {
+                e.preventDefault();
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+
+                var append = "    ";
+                $(this).val($(this).val().substring(0, start) + append + $(this).val().substring(end));
+
+                this.selectionStart = this.selectionEnd = start + append.length;
+            }
+        });
+
+        $("#source").focus();
+    </script>
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+<br><br><br>
+<div class="area">
+<div class="well foot">
+<div class="row area">
+<div class="col-sm-3">
+<!-- BEGIN: Powered by Supercounters.com -->
+<center><script type="text/javascript" src="http://widget.supercounters.com/online_i.js"></script><script type="text/javascript">sc_online_i(1360839,"ffffff","e61c1c");</script><br><noscript><a href="http://www.supercounters.com/">Free Online Counter</a></noscript>
+</center>
+<!-- END: Powered by Supercounters.com -->
+
+</div>
+
+<div class="col-sm-5">
+
+
+<div class="fm">
+
+<b>Beta Version-2021</b><br>
+<b>Developed By <a href="">Team: Clivin Pratyush Jeffrey </a></b>
+
+</div>
+</div>
+
+
+<div class="col-sm-4">
+
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+
