@@ -1,11 +1,11 @@
 
 # Online-Compiler
 
-This is an online compiler that can compile and run C\C++ And Java Program. This online compiler is a part of my 4th semester project
+This is an online compiler that can compile and run C\C++, Python And Java Program. This online compiler is a part of my 4th semester project for
 Operating System. This Online Compiler is Developed By <a href="https://github.com/Ronalmano">Pratyush Aryan</a>
 
 # Languages
-C , C++ And Java
+C , C++, Python And Java
 
 # Requirements
 
